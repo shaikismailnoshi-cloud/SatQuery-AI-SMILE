@@ -1,0 +1,84 @@
+version: "1.0"
+models:
+  single_image_vqa:
+    name: "QAM-RS Single Image VQA Specialist"
+    architecture: "RS-VisionEncoder + Query-Conditioned Cross-Attention + VLM-Decoder"
+    modality: ["optical_rgb", "optical_multispectral", "sar"]
+    tasks: ["single_image_vqa"]
+    checkpoint: "checkpoints/vqa_specialist_latest.pth"
+    dataset: "VRSBench + RSVQA"
+    parameters:
+      hidden_dim: 768
+      num_heads: 12
+      max_seq_len: 128
+    metrics:
+      accuracy: 0.842
+      f1_score: 0.835
+
+  captioning:
+    name: "QAM-RS Remote-Sensing Captioner"
+    architecture: "RS-VisionEncoder + Autoregressive Language Transformer"
+    modality: ["optical_rgb", "optical_multispectral"]
+    tasks: ["captioning", "scene_description"]
+    checkpoint: "checkpoints/captioner_latest.pth"
+    dataset: "BigEarthNet.txt + VRSBench"
+    parameters:
+      hidden_dim: 768
+      max_length: 256
+    metrics:
+      cider: 1.12
+      bleu_4: 0.38
+
+  grounding:
+    name: "QAM-RS Visual Grounding Engine"
+    architecture: "RS-FeaturePyramid + Query-Cross-Attention + BoundingBoxRegressor"
+    modality: ["optical_rgb", "optical_multispectral"]
+    tasks: ["visual_grounding"]
+    checkpoint: "checkpoints/grounding_latest.pth"
+    dataset: "VRSBench"
+    parameters:
+      box_format: "ymin_xmin_ymax_xmax"
+      normalized: true
+    metrics:
+      miou: 0.715
+      map_50: 0.784
+
+  change_detection:
+    name: "QAM-RS Bi-Temporal Change Engine"
+    architecture: "Dual-Stream Siamese RS Encoder + Temporal Difference Attention + Change Decoder"
+    modality: ["optical_bitemporal", "sar_bitemporal"]
+    tasks: ["change_detection", "change_map_generation"]
+    checkpoint: "checkpoints/change_detection_latest.pth"
+    dataset: "LEVIR-CD + WHU-CD"
+    parameters:
+      difference_mode: "subtraction_and_cross_attention"
+      output_stride: 4
+    metrics:
+      f1_score: 0.891
+      iou: 0.803
+
+  change_vqa:
+    name: "QAM-RS Temporal Change VQA Engine"
+    architecture: "Temporal-Change Encoder + Query-Conditioned VQA Decoder"
+    modality: ["optical_bitemporal"]
+    tasks: ["change_vqa", "change_description"]
+    checkpoint: "checkpoints/change_vqa_latest.pth"
+    dataset: "CDVQA"
+    parameters:
+      temporal_fusion: "gated_cross_attention"
+    metrics:
+      accuracy: 0.817
+
+  optical_sar_fusion:
+    name: "QAM-RS Optical-SAR Dual Encoder"
+    architecture: "Dual-Branch (Optical + SAR) Gated Cross-Modal Encoder"
+    modality: ["optical_sar_pair"]
+    tasks: ["optical_sar_fusion", "multimodal_vqa"]
+    checkpoint: "checkpoints/optical_sar_fusion_latest.pth"
+    dataset: "BigEarthNet-v2.0 + SEN12MS"
+    parameters:
+      optical_bands: 12
+      sar_bands: 2
+      fusion_type: "gated_cross_modal_attention"
+    metrics:
+      fusion_accuracy: 0.865

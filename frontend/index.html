@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SatQuery AI — SIH26167 Agentic Multimodal Remote-Sensing Vision-Language AI System for Satellite Imagery, GeoTIFF, SAR, and Change Detection.">
+    <title>SatQuery AI — Remote Sensing Intelligence Platform</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+    <!-- Toast Container -->
+    <div id="toast_container" class="toast-container"></div>
+
+    <div class="app-container">
+
+        <!-- ═══════════════════════════════════════════ STICKY HEADER ══ -->
+        <header class="app-header" id="main_header">
+            <div class="logo-container">
+                <div class="logo-icon-wrap">
+                    <span class="logo-icon">🌐</span>
+                </div>
+                <div class="logo-text">
+                    <h1>SatQuery <span class="logo-ai">AI</span></h1>
+                    <p class="subtitle">Remote Sensing Intelligence</p>
+                </div>
+            </div>
+
+            <!-- Header Navigation Tabs -->
+            <nav class="header-nav-tabs">
+                <button class="nav-tab active" id="nav_tab_home" data-view="home_view"><span class="nav-icon">🏠</span> Home</button>
+                <button class="nav-tab" id="nav_tab_history" data-view="history_view"><span class="nav-icon">⏱</span> Analysis History</button>
+                <button class="nav-tab" id="nav_tab_status" data-view="model_status_view"><span class="nav-icon">⚙</span> Model Status</button>
+                <button class="nav-tab" id="nav_tab_help" data-view="help_view"><span class="nav-icon">❓</span> Help</button>
+            </nav>
+
+            <div class="header-right-group">
+                <div class="status-group" id="status_group">
+                    <div class="status-pill" id="status_backend">
+                        <span class="status-dot green" id="backend_dot"></span>
+                        <span id="system_status_text">Backend Online</span>
+                    </div>
+                    <div class="status-pill" id="status_model">
+                        <span class="status-dot green" id="model_dot"></span>
+                        <span id="model_status_text">AI Engine Ready</span>
+                    </div>
+                </div>
+                <!-- User Profile / Auth Button -->
+                <div class="user-profile-area" id="user_profile_area">
+                    <!-- Shown when NOT logged in -->
+                    <button class="auth-header-btn" id="header_login_btn" title="Sign In to save your history">
+                        <span>🔑</span> Sign In
+                    </button>
+                    <!-- Shown when logged in -->
+                    <div class="user-menu-wrap hidden" id="user_menu_wrap">
+                        <button class="user-avatar-btn" id="user_avatar_btn" title="Account menu">
+                            <span class="avatar-initials" id="avatar_initials">A</span>
+                        </button>
+                        <div class="user-dropdown hidden" id="user_dropdown">
+                            <div class="user-dropdown-info">
+                                <div class="user-dropdown-name" id="dropdown_username">User</div>
+                                <div class="user-dropdown-email" id="dropdown_email">user@email.com</div>
+                            </div>
+                            <div class="user-dropdown-divider"></div>
+                            <button class="user-dropdown-item" onclick="switchView('history_view')">
+                                <span>⏱</span> My History
+                            </button>
+                            <button class="user-dropdown-item signout" id="signout_btn">
+                                <span>🚪</span> Sign Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ════════════════════════════════════ Top Upload Summary Bar ══ -->
+        <div id="upload_summary_bar" class="upload-summary-bar hidden">
+            <div class="summary-left">
+                <div class="summary-thumb-wrap">
+                    <img id="summary_thumb_img" src="" alt="Thumbnail" class="summary-thumb-img">
+                </div>
+                <div class="summary-file-info">
+                    <div class="summary-filename-row">
+                        <span id="summary_filename" class="summary-filename">satellite_image.jpg</span>
+                        <span class="summary-status-badge"><span class="badge-icon">☁</span> <span id="summary_upload_badge_text">Image loaded successfully</span></span>
+                    </div>
+                    <div id="summary_specs_row" class="summary-specs-row">
+                        Dimensions: <span id="summary_dim">200 × 185 px</span> &nbsp;|&nbsp;
+                        Format: <span id="summary_fmt">JPEG</span> &nbsp;|&nbsp;
+                        Type: <span id="summary_type">Optical</span> &nbsp;|&nbsp;
+                        Bands: <span id="summary_bands">3 (RGB)</span>
+                    </div>
+                </div>
+            </div>
+            <div class="summary-actions">
+                <button id="summary_replace_btn" class="summary-btn replace" type="button">🔄 Replace</button>
+                <button id="summary_remove_btn" class="summary-btn remove" type="button">🗑 Remove</button>
+            </div>
+            <div class="summary-meta-box">
+                <div class="meta-box-header">📐 Image Metadata</div>
+                <div class="meta-box-grid">
+                    <div><span>Dimensions</span> <strong id="meta_box_dim">200 × 185 px</strong></div>
+                    <div><span>Format</span> <strong id="meta_box_fmt">JPEG</strong></div>
+                    <div><span>Type</span> <strong id="meta_box_type">Optical</strong></div>
+                    <div><span>Bands</span> <strong id="meta_box_bands">3 (RGB)</strong></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden input for file handling -->
+        <input type="file" id="file_input" multiple accept=".tif,.tiff,.geotiff,.png,.jpg,.jpeg,.webp" class="file-input-hidden">
+
+        <!-- ════════════════════════════════════ 1. HOME VIEW ══ -->
+        <main id="home_view" class="main-layout view-section">
+
+            <!-- ─────────────────── LEFT SIDEBAR (Modes & Suggestions) ─────────────────── -->
+            <aside class="sidebar-left">
+
+                <!-- Analysis Modes Section -->
+                <div class="glass-card section-card">
+                    <div class="section-card-header">
+                        <span class="section-icon">👤</span>
+                        <h2 class="section-title">Analysis Modes</h2>
+                    </div>
+                    <div class="mode-stack" id="mode_grid">
+                        <button class="mode-card active" data-mode="describe_scene" data-query="Describe this satellite scene in detail.">
+                            <div class="mode-card-icon green-glow">🌐</div>
+                            <div class="mode-card-text">
+                                <div class="mode-card-title">Describe Scene</div>
+                                <div class="mode-card-desc">Understand land cover, terrain and scene composition.</div>
+                            </div>
+                        </button>
+                        <button class="mode-card" data-mode="locate_buildings" data-query="Locate all buildings and structures in this scene.">
+                            <div class="mode-card-icon blue-glow">🏢</div>
+                            <div class="mode-card-text">
+                                <div class="mode-card-title">Locate Buildings</div>
+                                <div class="mode-card-desc">Detect and localize building structures.</div>
+                            </div>
+                        </button>
+                        <button class="mode-card" data-mode="bitemporal_change" data-query="What changes occurred between these two satellite images?">
+                            <div class="mode-card-icon purple-glow">⏰</div>
+                            <div class="mode-card-text">
+                                <div class="mode-card-title">Bi-Temporal Change</div>
+                                <div class="mode-card-desc">Compare imagery across time.</div>
+                            </div>
+                        </button>
+                        <button class="mode-card" data-mode="optical_sar_fusion" data-query="Analyze this scene using optical and SAR information.">
+                            <div class="mode-card-icon magenta-glow">🎯</div>
+                            <div class="mode-card-text">
+                                <div class="mode-card-title">Optical-SAR Fusion</div>
+                                <div class="mode-card-desc">Combine complementary remote-sensing information.</div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Suggestions Section -->
+                <div class="glass-card section-card">
+                    <div class="section-card-header">
+                        <span class="section-icon">💡</span>
+                        <h2 class="section-title">Quick Suggestions</h2>
+                        <span class="chevron-icon">▼</span>
+                    </div>
+                    <div class="suggestions-stack" id="suggestion_chips">
+                        <button class="suggestion-btn" data-query="Describe this scene composition and land cover.">Describe scene composition &amp; land cover</button>
+                        <button class="suggestion-btn" data-query="Locate all visible building structures.">Locate all visible buildings</button>
+                        <button class="suggestion-btn" data-query="Identify major land-cover types.">Identify major land-cover types</button>
+                        <button class="suggestion-btn" data-query="What changed between two images?">What changed between two images?</button>
+                        <button class="suggestion-btn" data-query="Compare optical and SAR evidence.">Compare optical and SAR evidence</button>
+                    </div>
+                    <!-- SIH Presets Section -->
+                    <div class="sih-presets-wrap">
+                        <div class="sih-presets-header">🎯 SIH Demo Benchmarks</div>
+                        <div class="sih-chips-grid">
+                            <span class="chip sih-preset-chip" data-sih="tc1">SIH-1 Describe</span>
+                            <span class="chip sih-preset-chip" data-sih="tc2">SIH-2 Locate</span>
+                            <span class="chip sih-preset-chip" data-sih="tc3">SIH-3 Change</span>
+                            <span class="chip sih-preset-chip" data-sih="tc4">SIH-4 SAR</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Smarter Earth Insights Card -->
+                <div class="promo-card">
+                    <div class="promo-content">
+                        <div class="promo-icon">🌍</div>
+                        <h3 class="promo-title">Smarter Earth Insights</h3>
+                        <p class="promo-desc">AI-powered analysis for a sustainable tomorrow.</p>
+                    </div>
+                </div>
+
+            </aside>
+
+            <!-- ─────────────────── CENTER WORKSPACE (Viewer & AI Query) ─────────────────── -->
+            <section class="workspace-center">
+
+                <!-- Pre-upload Dropzone Drop Area (Shown when no image is loaded) -->
+                <div class="glass-card upload-drop-card" id="upload_card">
+                    <div class="dropzone" id="image_dropzone">
+                        <div class="dropzone-content" id="dropzone_content">
+                            <div class="upload-icon-wrap">
+                                <span class="upload-icon">☁</span>
+                            </div>
+                            <h2 class="drop-title">UPLOAD SATELLITE IMAGERY</h2>
+                            <p class="drop-sub">Drag &amp; Drop or <button class="browse-btn" id="browse_btn_trigger" type="button">Browse Files</button></p>
+                            <span class="file-formats">GeoTIFF · TIFF · PNG · JPEG up to 50 MB</span>
+                        </div>
+                    </div>
+                    <!-- Status Message & Previews -->
+                    <div id="upload_status" class="upload-status-msg" style="display:none;"></div>
+                    <div class="previews-container" id="previews_container"></div>
+                </div>
+
+                <!-- Ask SatQuery AI Search / Bar -->
+                <div class="glass-card query-card">
+                    <div class="query-card-header">
+                        <span class="sparkle-icon">✨</span>
+                        <h2 class="query-title">Ask SatQuery AI</h2>
+                    </div>
+                    <div class="query-input-bar">
+                        <div class="query-field-wrap">
+                            <input type="text" id="query_input"
+                                placeholder="Ask a question about your satellite imagery…"
+                                class="query-input-field"
+                                autocomplete="off">
+                            <div class="voice-controls-inline">
+                                <select id="voice_lang_select" class="voice-lang-select" title="Select Language">
+                                    <option value="en-US">🌐 EN</option>
+                                    <option value="hi-IN">🇮🇳 HI</option>
+                                    <option value="te-IN">🇮🇳 TE</option>
+                                    <option value="ta-IN">🇮🇳 TA</option>
+                                    <option value="kn-IN">🇮🇳 KN</option>
+                                    <option value="ml-IN">🇮🇳 ML</option>
+                                    <option value="bn-IN">🇮🇳 BN</option>
+                                    <option value="mr-IN">🇮🇳 MR</option>
+                                </select>
+                                <button id="mic_btn" class="mic-btn" type="button" title="Voice Input">
+                                    <span class="mic-icon" id="mic_icon">🎤</span>
+                                    <span class="mic-pulse-ring" id="mic_pulse_ring"></span>
+                                </button>
+                            </div>
+                        </div>
+                        <button id="submit_query_btn" class="analyze-gradient-btn" type="button">
+                            <span id="analyze_btn_text">Analyze Imagery</span>
+                            <span class="analyze-arrow">→</span>
+                            <div class="btn-spinner hidden" id="query_spinner"></div>
+                        </button>
+                    </div>
+
+                    <!-- Voice Status & Translation Badges -->
+                    <div id="voice_status_bar" class="voice-status-bar hidden">
+                        <span id="voice_status_icon" class="voice-status-icon">🔴</span>
+                        <span id="voice_status_text" class="voice-status-text">Listening… Speak your question</span>
+                    </div>
+                    <div id="multilingual_badge_container" class="multilingual-badge-container hidden">
+                        <div class="lang-badge-item">
+                            <span class="lang-badge-label">Original Query:</span>
+                            <span id="original_query_display" class="lang-badge-val"></span>
+                        </div>
+                        <div class="lang-badge-item">
+                            <span class="lang-badge-label">AI Normalized Query:</span>
+                            <span id="normalized_query_display" class="lang-badge-val highlight"></span>
+                        </div>
+                    </div>
+
+                    <!-- Horizontal Query Chips Below Bar -->
+                    <div class="query-chips-row">
+                        <span class="query-chip-pill" data-query="Describe this scene">Describe the scene</span>
+                        <span class="query-chip-pill" data-query="Locate all buildings">Locate all buildings</span>
+                        <span class="query-chip-pill" data-query="Identify land cover">Identify land cover</span>
+                        <span class="query-chip-pill" data-query="Show change detection">Show change detection</span>
+                        <span class="query-chip-pill" data-query="Compare optical and SAR evidence">Compare optical &amp; SAR</span>
+                    </div>
+                </div>
+
+                <!-- Progress Loading Bar (Hidden until query starts) -->
+                <div class="glass-card progress-card hidden" id="progress_card">
+                    <div class="progress-title">⚡ Executing PyTorch Grounded Inference Pipeline…</div>
+                    <div class="progress-steps" id="progress_steps">
+                        <div class="progress-step" id="pstep_upload"><div class="pstep-dot"></div><div class="pstep-label">Uploading Imagery</div></div>
+                        <div class="progress-step" id="pstep_validate"><div class="pstep-dot"></div><div class="pstep-label">Validating GeoTIFF/Bands</div></div>
+                        <div class="progress-step" id="pstep_preprocess"><div class="pstep-dot"></div><div class="pstep-label">Super-Sampling &amp; Tiling</div></div>
+                        <div class="progress-step" id="pstep_model"><div class="pstep-dot"></div><div class="pstep-label">Running Model Inference</div></div>
+                        <div class="progress-step" id="pstep_evidence"><div class="pstep-dot"></div><div class="pstep-label">Generating Visual Evidence</div></div>
+                        <div class="progress-step" id="pstep_answer"><div class="pstep-dot"></div><div class="pstep-label">Formulating Answer</div></div>
+                    </div>
+                </div>
+
+                <!-- Satellite Analysis Viewer -->
+                <div class="glass-card viewer-card hidden" id="viewer_card">
+                    <div class="viewer-top-bar">
+                        <!-- View Tabs -->
+                        <div class="viewer-tabs" id="viewer_tabs">
+                            <button class="viewer-tab" data-tab="original"><span class="tab-icon">📷</span> Original</button>
+                            <button class="viewer-tab active" data-tab="detections"><span class="tab-icon">⛶</span> Overlays &amp; Evidence</button>
+                            <button class="viewer-tab hidden" data-tab="change_map" id="tab_change_map"><span class="tab-icon">🔄</span> Change Map</button>
+                            <button class="viewer-tab hidden" data-tab="sar_fusion" id="tab_sar_fusion"><span class="tab-icon">⚙</span> SAR Fusion</button>
+                        </div>
+                        <!-- View Toolbar Controls -->
+                        <div class="viewer-toolbar">
+                            <button id="zoom_out_btn" class="tool-btn" title="Zoom Out">🔍-</button>
+                            <button id="zoom_in_btn" class="tool-btn" title="Zoom In">🔍+</button>
+                            <div class="zoom-dropdown">
+                                <span id="zoom_level_text">100%</span>
+                                <span class="drop-arrow">▼</span>
+                            </div>
+                            <button id="fullscreen_btn" class="tool-btn" title="Fullscreen">⛶</button>
+                            <button id="toggle_bbox_btn" class="tool-btn active" title="Layers">🥞</button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Canvas Area -->
+                    <div class="canvas-container" id="canvas_wrapper">
+                        <!-- Left Palette Tools -->
+                        <div class="canvas-palette">
+                            <button class="palette-btn active" title="Select Pointer">↖</button>
+                            <button class="palette-btn" title="Crop Box">⛶</button>
+                            <button class="palette-btn" title="Raster Layers">🥞</button>
+                            <button class="palette-btn" title="Stack Bands">📚</button>
+                            <button class="palette-btn" title="Target Crosshair">🎯</button>
+                        </div>
+
+                        <!-- Canvas element -->
+                        <canvas id="evidence_canvas"></canvas>
+
+                        <!-- BBox Hover Tooltip -->
+                        <div class="bbox-tooltip hidden" id="bbox_tooltip"></div>
+
+                        <!-- Bottom Canvas Overlay Readouts -->
+                        <div class="canvas-bottom-overlay">
+                            <div class="coord-readout">Lat: 16.2034 &nbsp; Lon: 80.5147</div>
+                            <div class="frame-corners">[ ]</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Validation & Source Requirement Card -->
+                <div class="glass-card source-req-card hidden" id="source_req_card">
+                    <div class="source-req-header">
+                        <div class="source-req-title-wrap">
+                            <span class="source-req-icon">🛰️</span>
+                            <div>
+                                <h3 class="source-req-title">Image Content &amp; Source Requirement Analysis</h3>
+                                <p class="source-req-sub">Task-to-evidence validation &amp; imagery suitability score</p>
+                            </div>
+                        </div>
+                        <div id="evidence_status_badge" class="evidence-status-badge valid">
+                            <span id="evidence_status_icon">✓</span>
+                            <span id="evidence_status_text">VALID EVIDENCE</span>
+                        </div>
+                    </div>
+
+                    <div class="source-req-grid">
+                        <!-- Image Validation Box -->
+                        <div class="source-req-box">
+                            <div class="box-title">📐 Image Validation</div>
+                            <ul class="val-check-list">
+                                <li><span class="check-icon">✓</span> File Status: <strong id="val_loaded_file">Image loaded</strong></li>
+                                <li><span class="check-icon">✓</span> Format: <strong id="val_fmt_tag">JPEG</strong></li>
+                                <li><span class="check-icon">✓</span> Quality: <strong id="val_quality_tag">ACCEPTABLE</strong></li>
+                                <li><span class="check-icon">✓</span> Resolution: <strong id="val_res_tag">HIGH</strong></li>
+                            </ul>
+                        </div>
+
+                        <!-- Visible Content Box -->
+                        <div class="source-req-box">
+                            <div class="box-title">🌐 Visible Content Breakdown</div>
+                            <div class="visible-content-chips" id="visible_content_chips">
+                                <span class="vchip">Water (~85%)</span>
+                                <span class="vchip">Vegetation (~10%)</span>
+                                <span class="vchip alert">Urban Structures: Not visible</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Insufficient Evidence Alert Box -->
+                    <div class="insufficient-alert-box hidden" id="insufficient_alert_box">
+                        <div class="insufficient-header-row">
+                            <span class="alert-icon-big">⚠</span>
+                            <div>
+                                <div class="insufficient-title">INSUFFICIENT VISUAL EVIDENCE FOR REQUESTED TASK</div>
+                                <div class="insufficient-sub" id="insufficient_task_name">Requested Task</div>
+                            </div>
+                        </div>
+
+                        <div class="insufficient-body">
+                            <div class="insufficient-row">
+                                <span class="row-label">What is visible:</span>
+                                <span class="row-val" id="insufficient_visible_text">Image analysis findings...</span>
+                            </div>
+                            <div class="insufficient-row">
+                                <span class="row-label">Why task cannot run:</span>
+                                <span class="row-val highlight" id="insufficient_why_text">Reason for rejection...</span>
+                            </div>
+                            <div class="insufficient-recommendation">
+                                <div class="rec-title">💡 RECOMMENDED SOURCE REQUIRED</div>
+                                <p class="rec-desc" id="insufficient_rec_source">Required source imagery description...</p>
+                                <div class="rec-action-row">
+                                    <button class="action-btn primary-btn" onclick="document.getElementById('file_input').click()">📤 Upload Suitable Image</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Analysis Result Card -->
+                <div class="glass-card result-card hidden" id="result_card">
+                    <div class="result-card-header">
+                        <div class="result-title-group">
+                            <span class="sparkle-cyan">✨</span>
+                            <h2 class="result-title">AI Analysis Result</h2>
+                            <span class="verified-badge">✓</span>
+                        </div>
+                        <div class="result-header-right">
+                            <div class="modality-badge" id="modality_badge">OPTICAL ANALYSIS</div>
+                        </div>
+                    </div>
+
+                    <!-- Precise Answer Box -->
+                    <div class="answer-highlight-box">
+                        <button class="answer-close-btn" onclick="this.parentElement.style.display='none'">✕</button>
+                        <div class="answer-head-row">
+                            <span class="check-circle-icon">✓</span>
+                            <div id="answer_headline" class="answer-headline">Analysis Findings</div>
+                        </div>
+                        <p id="answer_text" class="answer-body">Processing query results…</p>
+                    </div>
+
+                    <!-- Hallucination Warning Alert -->
+                    <div class="warning-alert hidden" id="hallucination_alert">
+                        <span class="alert-icon">⚠️</span>
+                        <span id="hallucination_text"></span>
+                    </div>
+
+                    <!-- Expandable Accordion List -->
+                    <div class="accordion-list">
+                        <!-- Visual Evidence -->
+                        <div class="accordion-item" id="expand_evidence">
+                            <button class="accordion-header" onclick="toggleExpand('evidence_body')">
+                                <div class="accordion-header-title">
+                                    <span class="acc-icon">🔬</span>
+                                    <span>Visual Evidence</span>
+                                </div>
+                                <span class="acc-sub">Bounding boxes, zoomed views, and detection details</span>
+                                <span class="expand-chevron" id="chev_evidence_body">▼</span>
+                            </button>
+                            <div class="accordion-body" id="evidence_body" style="display:none;">
+                                <ul id="evidence_list" class="evidence-list"></ul>
+                            </div>
+                        </div>
+
+                        <!-- Model Confidence Section -->
+                        <div class="accordion-item" id="expand_confidence">
+                            <button class="accordion-header" onclick="toggleExpand('confidence_body')">
+                                <div class="accordion-header-title">
+                                    <span class="acc-icon">📊</span>
+                                    <span>Model Confidence</span>
+                                </div>
+                                <span class="acc-sub" id="acc_conf_sub">—</span>
+                                <span class="expand-chevron" id="chev_confidence_body">▼</span>
+                            </button>
+                            <div class="accordion-body" id="confidence_body" style="display:none;">
+                                <div class="confidence-detail-wrap">
+                                    <div id="confidence_badge" class="confidence-badge high">CONFIDENCE: —</div>
+                                    <p class="conf-detail-text">Calibrated PyTorch model confidence calculated across spectral features, spatial resolution quality, and detection probabilities.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Limitations Section -->
+                        <div class="accordion-item" id="expand_limitations">
+                            <button class="accordion-header" onclick="toggleExpand('limitations_body')">
+                                <div class="accordion-header-title">
+                                    <span class="acc-icon">⚠️</span>
+                                    <span>Limitations</span>
+                                </div>
+                                <span class="acc-sub">Satellite resolution boundaries and sensor limits</span>
+                                <span class="expand-chevron" id="chev_limitations_body">▼</span>
+                            </button>
+                            <div class="accordion-body" id="limitations_body" style="display:none;">
+                                <p class="limitations-text">Satellite spatial resolution limits may affect sub-pixel edge boundary delineation. Resolution super-sampling applied where appropriate.</p>
+                            </div>
+                        </div>
+
+                        <!-- Trace Section -->
+                        <div class="accordion-item" id="expand_trace">
+                            <button class="accordion-header" onclick="toggleExpand('trace_body')">
+                                <div class="accordion-header-title">
+                                    <span class="acc-icon">⚙</span>
+                                    <span>Model Trace &amp; Execution</span>
+                                </div>
+                                <span class="expand-count" id="obj_count_badge"></span>
+                                <span class="expand-chevron" id="chev_trace_body">▼</span>
+                            </button>
+                            <div class="accordion-body" id="trace_body" style="display:none;">
+                                <div class="trace-container">
+                                    <div class="trace-header">
+                                        <span class="trace-task-tag" id="trace_task_tag">TASK: REMOTE_SENSING_AI</span>
+                                    </div>
+                                    <div id="execution_trace_steps" class="trace-steps"></div>
+                                </div>
+                                <div id="objects_table_wrapper" class="objects-table-wrapper" style="margin-top:0.75rem;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State (Before imagery upload) -->
+                <div class="glass-card empty-workspace-card" id="empty_workspace">
+                    <div class="empty-hero-wrap">
+                        <span class="empty-hero-icon">🛰️</span>
+                        <h3>Upload satellite imagery to begin analysis</h3>
+                        <p>SatQuery AI performs real AI inference on your imagery — scene description, building detection, change analysis and optical-SAR fusion.</p>
+                        <div class="empty-actions">
+                            <button class="action-btn primary-btn" onclick="document.getElementById('file_input').click()">📤 Upload Satellite Image</button>
+                            <button class="action-btn secondary-btn" onclick="loadSihPreset('tc1')">🎯 Try SIH Demo Preset</button>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- ─────────────────── RIGHT SIDEBAR (Detections & Export) ─────────────────── -->
+            <aside class="sidebar-right">
+
+                <!-- Dynamic Summary Card (Adapts to Mode & Inference) -->
+                <div class="glass-card summary-panel-card" id="detection_summary">
+                    <div class="panel-card-header">
+                        <span class="panel-icon">📊</span>
+                        <h2 class="panel-title" id="summary_panel_title">Analysis Summary</h2>
+                    </div>
+                    <div class="summary-metric-block">
+                        <div class="metric-number-big" id="det_total_num">—</div>
+                        <div class="metric-label-big" id="det_total_label">Standby / Ready</div>
+                    </div>
+                    <div class="summary-breakdown-list" id="summary_breakdown_list">
+                        <div class="breakdown-item high">
+                            <span class="breakdown-dot green"></span>
+                            <span class="breakdown-label">Analysis Status</span>
+                            <span class="breakdown-val" id="summary_status_val">Ready</span>
+                        </div>
+                        <div class="breakdown-item med">
+                            <span class="breakdown-dot yellow"></span>
+                            <span class="breakdown-label">Selected Mode</span>
+                            <span class="breakdown-val" id="summary_mode_val">Describe Scene</span>
+                        </div>
+                    </div>
+                    <!-- Model Confidence Progress Bar -->
+                    <div class="model-conf-section">
+                        <div class="conf-title-row">
+                            <span>Model Confidence</span>
+                            <span id="conf_value_text" class="conf-pct-text">—</span>
+                        </div>
+                        <div class="conf-bar-track">
+                            <div class="conf-bar-fill" id="conf_bar_fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mode-Specific Details Panel (Buildings List / Land Cover / Change Regions) -->
+                <div class="glass-card buildings-panel-card" id="detected_buildings_card">
+                    <div class="panel-card-header-flex">
+                        <div class="panel-header-left">
+                            <span class="panel-icon" id="mode_panel_icon">🏢</span>
+                            <h2 class="panel-title" id="mode_panel_title">Analysis Details</h2>
+                        </div>
+                        <button class="sort-link-btn hidden" id="sort_buildings_btn">Sort by Conf</button>
+                    </div>
+                    <div class="buildings-scroll-list" id="detected_buildings_list">
+                        <div class="empty-state small">
+                            <p>Upload image &amp; run analysis to view detailed findings</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Export Results Card -->
+                <div class="glass-card export-panel-card">
+                    <div class="panel-card-header">
+                        <span class="panel-icon">📥</span>
+                        <h2 class="panel-title">Export Results</h2>
+                    </div>
+                    <div class="export-buttons-stack">
+                        <button id="export_json_btn" class="export-vibrant-btn blue-gradient">
+                            <span>⬇</span> Download JSON
+                        </button>
+                        <button id="export_csv_btn" class="export-vibrant-btn teal-gradient">
+                            <span>📊</span> Download CSV
+                        </button>
+                        <button id="export_pdf_btn" class="export-vibrant-btn purple-gradient">
+                            <span>📄</span> Generate Report (PDF)
+                        </button>
+                    </div>
+                    <div class="analysis-time-footer">
+                        <span class="clock-icon">⏱</span> Analysis Time: <span id="analysis_time_val">—</span>
+                    </div>
+                </div>
+
+            </aside>
+
+        </main>
+
+        <!-- ════════════════════════════════════ 2. ANALYSIS HISTORY VIEW ══ -->
+        <section id="history_view" class="view-section hidden">
+            <div class="glass-card page-header-card">
+                <div class="page-title-row history-page-actions">
+                    <div class="page-title-group">
+                        <span class="page-icon">⏱</span>
+                        <div>
+                            <h2 class="page-title">Analysis History</h2>
+                            <p class="page-subtitle">Real session analysis logs and model execution history</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.75rem;">
+                        <!-- "Clear All" button injected here by JS for signed-in users -->
+                        <button class="back-home-btn" data-back-to="home_view">← Back to Home</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card page-content-card">
+                <div id="history_records_container" class="history-records-grid">
+                    <!-- Populated dynamically from state.analysisHistory -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ════════════════════════════════════ 3. MODEL STATUS VIEW ══ -->
+        <section id="model_status_view" class="view-section hidden">
+            <div class="glass-card page-header-card">
+                <div class="page-title-row">
+                    <div class="page-title-group">
+                        <span class="page-icon">⚙</span>
+                        <div>
+                            <h2 class="page-title">Model Status &amp; System Diagnostics</h2>
+                            <p class="page-subtitle">Live health and PyTorch inference engine diagnostic metrics</p>
+                        </div>
+                    </div>
+                    <button class="back-home-btn" data-back-to="home_view">← Back to Home</button>
+                </div>
+            </div>
+
+            <div class="glass-card page-content-card">
+                <div class="diagnostics-grid">
+                    <div class="diag-card">
+                        <div class="diag-card-label">Backend API Service</div>
+                        <div class="diag-card-val green" id="diag_backend_val">Online</div>
+                        <div class="diag-card-sub" id="diag_backend_sub">FastAPI Service Active</div>
+                    </div>
+                    <div class="diag-card">
+                        <div class="diag-card-label">PyTorch Inference Engine</div>
+                        <div class="diag-card-val green" id="diag_model_val">Ready / Loaded</div>
+                        <div class="diag-card-sub" id="diag_model_sub">FasterRCNN MobileNet_V3 Large FPN</div>
+                    </div>
+                    <div class="diag-card">
+                        <div class="diag-card-label">Hardware Acceleration Device</div>
+                        <div class="diag-card-val cyan" id="diag_device_val">MPS (Metal Acceleration)</div>
+                        <div class="diag-card-sub">Apple Silicon Neural Engine Active</div>
+                    </div>
+                    <div class="diag-card">
+                        <div class="diag-card-label">Image Processing &amp; Validation</div>
+                        <div class="diag-card-val green">Ready</div>
+                        <div class="diag-card-sub">GeoTIFF / TIFF / PNG / JPEG Validator</div>
+                    </div>
+                </div>
+
+                <div class="diag-details-table-wrap">
+                    <h3 class="diag-table-title">Supported Remote Sensing Capabilities</h3>
+                    <table class="diag-table">
+                        <thead>
+                            <tr>
+                                <th>Analysis Mode</th>
+                                <th>Primary Pipeline</th>
+                                <th>Input Modalities</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Describe Scene</strong></td>
+                                <td>Land Cover &amp; Scene Composition</td>
+                                <td>Single Optical / GeoTIFF</td>
+                                <td><span class="status-badge-inline green">Ready</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Locate Buildings</strong></td>
+                                <td>FasterRCNN Tiled Multi-Scale Detection</td>
+                                <td>Single Optical / GeoTIFF</td>
+                                <td><span class="status-badge-inline green">Ready (F1=1.00)</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Bi-Temporal Change</strong></td>
+                                <td>Pixel Differencing &amp; Alteration Map</td>
+                                <td>Temporal Pair (T1 / T2)</td>
+                                <td><span class="status-badge-inline green">Ready</span></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Optical-SAR Fusion</strong></td>
+                                <td>Dual-Stream Radar Reflectance Fusion</td>
+                                <td>Optical + SAR Pair</td>
+                                <td><span class="status-badge-inline green">Ready</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ════════════════════════════════════ 4. HELP VIEW ══ -->
+        <section id="help_view" class="view-section hidden">
+            <div class="glass-card page-header-card">
+                <div class="page-title-row">
+                    <div class="page-title-group">
+                        <span class="page-icon">❓</span>
+                        <div>
+                            <h2 class="page-title">SatQuery AI — Platform Documentation &amp; User Guide</h2>
+                            <p class="page-subtitle">Complete guide to agentic multimodal remote sensing intelligence</p>
+                        </div>
+                    </div>
+                    <button class="back-home-btn" data-back-to="home_view">← Back to Home</button>
+                </div>
+            </div>
+
+            <div class="glass-card page-content-card">
+                <div class="help-notice-box">
+                    <span class="help-notice-icon">🌐</span>
+                    <div>
+                        <strong>SatQuery AI System Overview:</strong>
+                        <p>SatQuery AI is a comprehensive multimodal remote-sensing intelligence platform. Building detection is one of its specialized capabilities alongside scene description, land-cover identification, change detection, and optical-SAR radar fusion.</p>
+                    </div>
+                </div>
+
+                <div class="help-sections-grid">
+                    <div class="help-section-card">
+                        <h3>📖 10-Step Workflow Guide</h3>
+                        <ol class="help-steps-list">
+                            <li><strong>Upload Satellite Imagery:</strong> Drag &amp; drop GeoTIFF, TIFF, PNG, or JPEG imagery.</li>
+                            <li><strong>Select Analysis Mode:</strong> Choose between Describe Scene, Locate Buildings, Bi-Temporal Change, or Optical-SAR Fusion.</li>
+                            <li><strong>Ask a Question:</strong> Type your query or click the 🎤 mic icon to speak in English or Indian regional languages.</li>
+                            <li><strong>Execute Analysis:</strong> Click "Analyze Imagery →" to trigger PyTorch grounded inference.</li>
+                            <li><strong>View Overlays:</strong> Inspect detected bounding boxes, change maps, or fusion layers on the central viewer.</li>
+                            <li><strong>Review Summary:</strong> Dynamic mode-specific results appear automatically in the result panel.</li>
+                            <li><strong>Use Viewer Controls:</strong> Mouse wheel to zoom, drag to pan, or toggle overlays (`🥞`).</li>
+                            <li><strong>Inspect Findings:</strong> Click any object or building card to zoom and highlight it on the canvas.</li>
+                            <li><strong>Check Confidence &amp; Limits:</strong> Review calibrated model confidence and resolution boundaries.</li>
+                            <li><strong>Export Results:</strong> Download JSON metadata, CSV detection tables, or PDF print reports.</li>
+                        </ol>
+                    </div>
+
+                    <div class="help-section-card">
+                        <h3>🎯 Four Core Remote Sensing Capabilities</h3>
+                        <div class="help-mode-desc-list">
+                            <div class="help-mode-item">
+                                <h4>🌐 Describe Scene</h4>
+                                <p>Analyzes land cover distribution (vegetation, water, urban impervious surfaces, bare soil), terrain composition, and spatial scene context.</p>
+                            </div>
+                            <div class="help-mode-item">
+                                <h4>🏢 Locate Buildings</h4>
+                                <p>Runs PyTorch `FasterRCNN_MobileNet_V3_Large_FPN` with multi-scale overlapping tiling to detect and localize residential and commercial roof structures with exact bounding box coordinates.</p>
+                            </div>
+                            <div class="help-mode-item">
+                                <h4>⏰ Bi-Temporal Change</h4>
+                                <p>Compares co-registered satellite images across time (T1 vs T2) to generate pixel-level land-cover alteration maps and calculate percentage change area.</p>
+                            </div>
+                            <div class="help-mode-item">
+                                <h4>🎯 Optical-SAR Fusion</h4>
+                                <p>Combines optical spectral reflection with Synthetic Aperture Radar (SAR) backscatter to penetrate cloud cover and confirm physical structures under adverse atmospheric conditions.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- ════════════════════════════════════ AUTH MODAL ══ -->
+    <div class="modal-overlay hidden" id="auth_modal_overlay" role="dialog" aria-modal="true" aria-labelledby="auth_modal_title">
+        <div class="auth-modal" id="auth_modal">
+            <!-- Modal Header -->
+            <div class="auth-modal-header">
+                <div class="auth-modal-logo">
+                    <span class="logo-icon">🌐</span>
+                    <span class="auth-modal-brand">SatQuery <span class="logo-ai">AI</span></span>
+                </div>
+                <button class="auth-modal-close" id="auth_modal_close" aria-label="Close">&times;</button>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab_login" data-form="login">Sign In</button>
+                <button class="auth-tab" id="tab_signup" data-form="signup">Create Account</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form class="auth-form" id="login_form" autocomplete="on" novalidate>
+                <div class="auth-subtitle" id="auth_modal_title">Welcome back</div>
+                <div class="auth-subtitle-sub">Sign in to access your analysis history from any device.</div>
+
+                <div class="auth-field-group">
+                    <label class="auth-label" for="login_email">Email Address</label>
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon">✉</span>
+                        <input class="auth-input" type="email" id="login_email" name="email"
+                               placeholder="you@example.com" autocomplete="email" required>
+                    </div>
+                </div>
+
+                <div class="auth-field-group">
+                    <label class="auth-label" for="login_password">Password</label>
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon">🔒</span>
+                        <input class="auth-input" type="password" id="login_password" name="password"
+                               placeholder="Your password" autocomplete="current-password" required>
+                        <button type="button" class="auth-pw-toggle" data-target="login_password" title="Show/hide password">👁</button>
+                    </div>
+                </div>
+
+                <div class="auth-error hidden" id="login_error"></div>
+
+                <button type="submit" class="auth-submit-btn" id="login_submit_btn">
+                    <span id="login_btn_text">Sign In →</span>
+                    <span class="auth-spinner hidden" id="login_spinner">⟳</span>
+                </button>
+
+                <div class="auth-divider"><span>or</span></div>
+
+                <button type="button" class="auth-guest-btn" id="continue_guest_btn">
+                    Continue as Guest
+                </button>
+
+                <div class="auth-switch-hint">
+                    No account? <button type="button" class="auth-switch-link" data-form="signup">Create one free →</button>
+                </div>
+            </form>
+
+            <!-- SIGNUP FORM -->
+            <form class="auth-form hidden" id="signup_form" autocomplete="on" novalidate>
+                <div class="auth-subtitle">Create your account</div>
+                <div class="auth-subtitle-sub">Your analysis history is saved securely across all devices.</div>
+
+                <div class="auth-field-group">
+                    <label class="auth-label" for="signup_username">Display Name</label>
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon">👤</span>
+                        <input class="auth-input" type="text" id="signup_username" name="username"
+                               placeholder="Your name" autocomplete="name" required>
+                    </div>
+                </div>
+
+                <div class="auth-field-group">
+                    <label class="auth-label" for="signup_email">Email Address</label>
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon">✉</span>
+                        <input class="auth-input" type="email" id="signup_email" name="email"
+                               placeholder="you@example.com" autocomplete="email" required>
+                    </div>
+                </div>
+
+                <div class="auth-field-group">
+                    <label class="auth-label" for="signup_password">Password</label>
+                    <div class="auth-input-wrap">
+                        <span class="auth-input-icon">🔒</span>
+                        <input class="auth-input" type="password" id="signup_password" name="password"
+                               placeholder="At least 6 characters" autocomplete="new-password" required>
+                        <button type="button" class="auth-pw-toggle" data-target="signup_password" title="Show/hide password">👁</button>
+                    </div>
+                </div>
+
+                <div class="auth-error hidden" id="signup_error"></div>
+
+                <button type="submit" class="auth-submit-btn" id="signup_submit_btn">
+                    <span id="signup_btn_text">Create Account →</span>
+                    <span class="auth-spinner hidden" id="signup_spinner">⟳</span>
+                </button>
+
+                <div class="auth-switch-hint">
+                    Already have an account? <button type="button" class="auth-switch-link" data-form="login">Sign in →</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

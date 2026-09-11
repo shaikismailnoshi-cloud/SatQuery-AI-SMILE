@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  satquery-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: satquery_ai_app
+    ports:
+      - "8000:8000"
+      - "3000:3000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PORT=8000
+    volumes:
+      - ./checkpoints:/app/checkpoints
+      - ./reports:/app/reports
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

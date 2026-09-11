@@ -1,0 +1,96 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Virtual Environments
+.venv
+venv/
+ENV/
+env/
+
+# Environments & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.json
+!package.json
+!docker-compose.yml
+!sih_test_cases.json
+!ablation_study_report.json
+!data_leakage_report.json
+!data_quality_report.json
+
+# Databases & User Data
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# Uploads & Model Checkpoints (Heavy Binaries)
+checkpoints/*.pth
+checkpoints/*.pt
+checkpoints/*.bin
+checkpoints/*.onnx
+satquery_uploads/
+
+# OS / Editor junk
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo

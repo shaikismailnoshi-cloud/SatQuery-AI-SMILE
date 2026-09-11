@@ -1,0 +1,56 @@
+version: "1.0"
+datasets:
+  bigearthnet:
+    name: "BigEarthNet-v2.0 (BigEarthNet.txt)"
+    description: "Multispectral & SAR Sentinel-1/2 pair dataset for RS VLM adaptation & land-cover classification."
+    modalities: ["optical_multispectral", "sar"]
+    optical_bands: ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B11", "B12"]
+    sar_bands: ["VV", "VH"]
+    tasks: ["vlm_adaptation", "vqa", "captioning", "classification"]
+    license: "CC-BY-4.0"
+    url: "https://bigearth.net"
+    sample_count: 590612
+    primary: true
+
+  vrsbench:
+    name: "VRSBench"
+    description: "Visual Remote Sensing benchmark for VQA, captioning, and bounding box visual grounding."
+    modalities: ["optical_rgb"]
+    tasks: ["single_image_vqa", "captioning", "visual_grounding"]
+    license: "Open Source Research"
+    sample_count: 29614
+    qa_count: 120000
+
+  rsvqa:
+    name: "RSVQA (HR & LR)"
+    description: "Remote Sensing Visual Question Answering dataset covering presence, counting, and spatial relations."
+    modalities: ["optical_rgb"]
+    tasks: ["single_image_vqa"]
+    license: "Research"
+    sample_count: 21000
+    qa_count: 1600000
+
+  cdvqa:
+    name: "CDVQA"
+    description: "Change Detection VQA dataset with bi-temporal satellite image pairs and natural language change QAs."
+    modalities: ["optical_bitemporal"]
+    tasks: ["change_vqa", "change_description", "temporal_reasoning"]
+    license: "Research"
+    sample_count: 1000
+    qa_count: 10000
+
+  levir_cd:
+    name: "LEVIR-CD"
+    description: "Building change detection dataset with bi-temporal high-resolution optical image pairs."
+    modalities: ["optical_bitemporal"]
+    tasks: ["change_detection"]
+    license: "Research"
+    sample_count: 637
+
+  sen12ms:
+    name: "SEN12MS"
+    description: "Multi-temporal paired Sentinel-1 SAR and Sentinel-2 optical imagery for representation learning."
+    modalities: ["optical_multispectral", "sar"]
+    tasks: ["optical_sar_fusion", "modality_adaptation"]
+    license: "CC-BY-4.0"
+    sample_count: 180662

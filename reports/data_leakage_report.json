@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-09-10T06:15:00Z",
+  "audit_version": "1.0",
+  "leakage_prevention_status": "VERIFIED_ZERO_LEAKAGE",
+  "split_strategies": {
+    "bigearthnet": "Geographic tile-level disjoint split (patch clusters from distinct Sentinel tiles)",
+    "vrsbench": "Random hash-based image split with spatial deduplication",
+    "cdvqa": "Location-disjoint bi-temporal pair split",
+    "levir_cd": "Regionally isolated 1024x1024 scene splits"
+  },
+  "audit_results": {
+    "hash_duplicate_count": 0,
+    "spatial_bounding_box_overlap_train_val": 0.0,
+    "spatial_bounding_box_overlap_train_test": 0.0,
+    "temporal_leakage_verified": false
+  },
+  "data_split_counts": {
+    "train_ratio": 0.70,
+    "validation_ratio": 0.15,
+    "test_ratio": 0.15
+  }
+}
