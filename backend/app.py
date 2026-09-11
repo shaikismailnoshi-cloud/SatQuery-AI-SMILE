@@ -131,10 +131,17 @@ def _require_user(authorization: Optional[str]) -> Dict[str, Any]:
 @app.get("/health")
 def health_check():
     """Health check & GPU/Hardware capabilities endpoint."""
-    import torch
-    mps_available = getattr(torch.backends, 'mps', None) and torch.backends.mps.is_available()
-    cuda_available = torch.cuda.is_available()
-    device = "cuda" if cuda_available else ("mps" if mps_available else "cpu")
+    try:
+        import torch
+        mps_available = getattr(torch.backends, 'mps', None) and torch.backends.mps.is_available()
+        cuda_available = torch.cuda.is_available()
+        device = "cuda" if cuda_available else ("mps" if mps_available else "cpu")
+        torch_version = torch.__version__
+    except ImportError:
+        mps_available = False
+        cuda_available = False
+        device = "cpu (cloud-mode)"
+        torch_version = "not installed"
 
     return {
         "status": "healthy",
@@ -143,8 +150,9 @@ def health_check():
         "device": device,
         "cuda_available": cuda_available,
         "mps_available": mps_available,
-        "torch_version": torch.__version__,
-        "pytorch_engine_active": inference_engine is not None
+        "torch_version": torch_version,
+        "pytorch_engine_active": inference_engine is not None,
+        "cloud_mode": os.environ.get("SATQUERY_CLOUD_MODE", "0") == "1"
     }
 
 
